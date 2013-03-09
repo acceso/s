@@ -1,0 +1,18 @@
+
+#
+# ( GLOBAL | alias ) [ user [, start [, end ] ] ]
+#
+# The connection is done to: user @ start + alias + end
+#
+# It uses the alias definition but if empty, uses the GLOBAL one.
+# So at least one is needed.
+
+
+GLOBAL,root
+serv1
+serv2
+serv3
+serv4
+
+
+

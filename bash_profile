@@ -1,0 +1,4 @@
+
+unset HISTFILE
+
+

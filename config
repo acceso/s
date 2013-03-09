@@ -1,0 +1,67 @@
+
+
+# File with the list of hosts:
+hostlist	= ${Bin}/hostlist
+
+
+# Where to save the sockets:
+sockbase	= $ENV{HOME}/.libnet-openssh-perl
+
+
+# Set xterm title?
+xtermtitle	= true
+
+
+# Directory with ssh keys:
+keysdir		= ${Bin}/keys
+
+
+# SSH verbose for the master process:
+ssh_verbose_master = 0
+
+
+# SSH verbose for the slave processes:
+ssh_verbose	= 0
+
+
+# SSH Debug
+ssh_debug	= false
+
+
+# SSH Debug extra
+ssh_debug_extra	= false
+
+
+# expect debug:
+expect_debug	= 0
+
+
+# shell command
+shell		= bash
+
+
+# command used for su:
+su_command	= su -l
+
+
+# shell initialization commands to be executed before the profile:
+shell_init      = export HISTCONTROL='ignorespace'
+
+
+# shell profile file:
+profile_file 	= ${Bin}/bash_profile
+
+
+# history file:
+history_file	= ${Bin}/bash_history
+
+
+# stty options used to restore the terminal (man stty):
+tty_restore	= sane -brkint -imaxbel iutf8
+
+
+# directory with scripts:
+scripts_dir	= ${Bin}/scripts
+
+
+
