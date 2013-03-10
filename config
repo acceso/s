@@ -52,8 +52,17 @@ shell_init      = export HISTCONTROL='ignorespace'
 profile_file 	= ${Bin}/bash_profile
 
 
+# profile per host:
+profile_host 	= ${Bin}/profiles/%s
+
+
 # history file:
 history_file	= ${Bin}/bash_history
+
+
+# history per host:
+history_host 	= ${Bin}/profiles/%s.hist
+
 
 
 # stty options used to restore the terminal (man stty):

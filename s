@@ -39,7 +39,9 @@ read_config
 		su_command	=> "su -l",
 		shell_init	=> '',
  		profile_file	=> "${Bin}/bash_profile",
+ 		profile_host	=> "${Bin}/profiles/%s",
 		history_file	=> "${Bin}/bash_history",
+ 		history_host	=> "${Bin}/history/%s",
 		tty_restore	=> "sane -brkint -imaxbel iutf8",
 		scripts_dir	=> "${Bin}/scripts",
 
@@ -406,6 +408,11 @@ foreach my $host ( get_ssh_hosts( $config->{hostlist}, $h_name ) ) {
 
 	file2expect $expect, $config->{profile_file}, " " if $config->{profile_file};
 
+	if( $config->{profile_host} ) {
+		$config->{profile_host} = sprintf $config->{profile_host}, $host->{alias};
+		file2expect $expect, $config->{profile_host}, " " if -r $config->{profile_host};
+	}
+
 
 	if( $cmdopts{s} ) {
 		my $scriptfile;
@@ -423,6 +430,10 @@ foreach my $host ( get_ssh_hosts( $config->{hostlist}, $h_name ) ) {
 
 	} else {
 		file2expect $expect, $config->{history_file}, " history -s ", 1 if $config->{history_file};
+		if( $config->{history_host} ) {
+			$config->{history_host} = sprintf $config->{history_host}, $host->{alias};
+			file2expect $expect, $config->{history_host}, " history -s ", 1 if -r $config->{history_host};
+		}
 	}
 
 
