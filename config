@@ -45,15 +45,15 @@ su_command	= su -l
 
 
 # shell initialization commands to be executed before the profile:
-shell_init      = export HISTCONTROL='ignorespace'
+shell_init	= export HISTCONTROL='ignorespace'
 
 
 # shell profile file:
-profile_file 	= ${Bin}/bash_profile
+profile_file	= ${Bin}/bash_profile
 
 
 # profile per host:
-profile_host 	= ${Bin}/profiles/%s
+profile_host	= ${Bin}/profiles/%s
 
 
 # history file:
@@ -61,7 +61,7 @@ history_file	= ${Bin}/bash_history
 
 
 # history per host:
-history_host 	= ${Bin}/profiles/%s.hist
+history_host	= ${Bin}/profiles/%s.hist
 
 
 
