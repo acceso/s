@@ -118,17 +118,19 @@ sub
 get_ssh_hosts
 {
 	my $file = shift;
-	my $name = shift;
-
-	my $using_regexp = 0;
-
-	if( $name =~ /^\/(.*)\/$/ ) {
-		$using_regexp = 1;
-		$name = qr/${1}/;
-	}
+	my @names = @_;
 
 	open my $hl, "<", $file
 		or die "Can't open hosts file: $!";
+
+	my @names_exp = ( );
+	foreach( @names ) {
+		if( $_ =~ /^\/(.*)\/$/ ) {
+			push @names_exp, qr/${1}/;
+		} else {
+			push @names_exp, $_;
+		}
+	}
 
 	my @hostlist = ( );
 	my @global_context = ( );
@@ -146,11 +148,7 @@ get_ssh_hosts
 			next;
 		}
 
-		if( $using_regexp ) {
-			next unless $h_alias =~ $name;
-		} else {
-			next unless $h_alias eq $name;
-		}
+		next unless $h_alias ~~ @names_exp;
 
 		push @hostlist, {
 			alias		=> $h_alias,
@@ -329,7 +327,7 @@ my %cmdopts;
 getopts( 's:n', \%cmdopts );
 
 
-my $h_name = $ARGV[0] || die "Need a regular expression or host.";
+@ARGV || die "Need regular expression/s or host/s.";
 
 
 
@@ -338,7 +336,7 @@ mkdir $config->{sockbase} or die "Can't create socket directory."
 
 
 
-foreach my $host ( get_ssh_hosts( $config->{hostlist}, $h_name ) ) { 
+foreach my $host ( get_ssh_hosts( $config->{hostlist}, @ARGV ) ) { 
 
 	if( $cmdopts{n} ) {
 		print $host->{alias} . " " . $host->{hostname} . "\n";
