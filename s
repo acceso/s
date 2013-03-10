@@ -19,14 +19,11 @@ use Expect;
 
 
 
-# A bit messy, but it should work:
 sub
-read_config
+default_options
 {
-	my $file = shift;
 
-	# default options:
-	my $h = {
+	return {
 		hostlist	=> "${Bin}/hostlist",
 		sockbase	=> "$ENV{HOME}/.libnet-openssh-perl",
 		xtermtitle	=> 0,
@@ -47,6 +44,17 @@ read_config
 		scripts_dir	=> "${Bin}/scripts",
 
 	};
+
+}
+
+
+
+# A bit messy, but it should work:
+sub
+read_config
+{
+	my $h = shift; 
+	my $file = shift;
 
 	my @runaway = ( );
 
@@ -322,7 +330,11 @@ file2expect
 
 
 
-my $config = read_config "${Bin}/config";
+my $config = default_options;
+
+read_config $config, "${Bin}/config";
+read_config $config, "${Bin}/config.custom";
+
 
 
 my %cmdopts;
