@@ -106,7 +106,7 @@ read_config
 
 		my $finalval;
 
-		if( $val =~ /^["'](false|0|no|off)["']$/ ) {
+		if( $val =~ /^["']?(false|0|no|off)?["']?$/ ) {
 			$finalval = '';
 		} else {
 			$finalval = eval $val or die "Invalid value in config file: " . $@;
