@@ -59,15 +59,17 @@ read_config
 			chomp $l;
 		}
 
+		my $var;
+		my $val;
+
 		if( @runaway ) {
 			my $quotation = substr( $runaway[1], 0, 1 );
-			if( $l =~ /^(.*)${quotation}\s*$/ ) {
+			if( $l =~ /^(.*${quotation})\s*$/ ) {
 				push @runaway, $1;
 
-				$runaway[1] = substr $runaway[1], 1;
+				$var = shift @runaway;
+				$val = join "", @runaway;
 
-				my $var = shift @runaway;
-				$h->{$var} = join "", @runaway;
 				@runaway = ( );
 			} else {
 				push @runaway, $l . "\n";
@@ -76,32 +78,32 @@ read_config
 		} else {
 			next if $l =~ /^\s*(#|$)/;
 
-			my( $var, $val ) = split /\s*=\s*/, $l, 2;
-
-			if( $val =~ /^(["'])/ ) {
-				if( $val =~ /^$1(.*)$1$/ ) {
-					$val = qq/"${1}"/
-				} else {
-					push @runaway, $var, $val . "\n";
-					next;
-				}
-			} else {
-				# If the command has double quotes inside, this will fail
-				# but if we use single quotes there is no interpolation...
-				$val = qq/"${val}"/;
-			}
-
-			my $finalval;
-
-			if( $val =~ /^"(false|0|no|off)"$/ ) {
-				$finalval = '';
-			} else {
-				$finalval = eval $val or die "Invalid value in config file: " . $@;
-			}
-
-			$h->{$var} = $finalval;
-
+			( $var, $val ) = split /\s*=\s*/, $l, 2;
 		}
+
+		if( $val =~ /^["']/ ) {
+			if( $val =~ /\A"((?:.*|\n)*)"\z/m ) {
+				$val = qq/"${1}"/;
+			} elsif( $val =~ /\A'((?:.*|\n)*)'\z/m ) {
+				$val = qq/'${1}'/;
+			} else {
+				push @runaway, $var, $val . "\n";
+				next;
+			}
+		} else {
+			# Use double quotes for unquoted strings:
+			$val = qq/"${val}"/;
+		}
+
+		my $finalval;
+
+		if( $val =~ /^["'](false|0|no|off)["']$/ ) {
+			$finalval = '';
+		} else {
+			$finalval = eval $val or die "Invalid value in config file: " . $@;
+		}
+
+		$h->{$var} = $finalval;
 
 	}
 
