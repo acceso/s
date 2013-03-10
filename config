@@ -64,6 +64,9 @@ history_file	= ${Bin}/bash_history
 history_host	= ${Bin}/profiles/%s.hist
 
 
+# ps1
+ps1		= '\[\033]0;\u@\h \w\007\]\w\$ '
+
 
 # stty options used to restore the terminal (man stty):
 tty_restore	= sane -brkint -imaxbel iutf8

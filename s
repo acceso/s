@@ -42,6 +42,7 @@ read_config
  		profile_host	=> "${Bin}/profiles/%s",
 		history_file	=> "${Bin}/bash_history",
  		history_host	=> "${Bin}/history/%s",
+		ps1		=> '\u@\h:\w\$ ',
 		tty_restore	=> "sane -brkint -imaxbel iutf8",
 		scripts_dir	=> "${Bin}/scripts",
 
@@ -437,7 +438,7 @@ foreach my $host ( get_ssh_hosts( $config->{hostlist}, @ARGV ) ) {
 	}
 
 
-	$expect->send( ' export PS1="' . $host->{alias} . ' \\w # "; stty ' . $config->{tty_restore} . "\n" );
+	$expect->send( " export PS1='" . $config->{ps1} . "'; stty " . $config->{tty_restore} . "\n" );
 
 	$expect->interact();
 
