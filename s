@@ -133,8 +133,11 @@ get_ssh_hosts
 	my $file = shift;
 	my @names = @_;
 
-	open my $hl, "<", $file
-		or die "Can't open hosts file: $!";
+	my $hl;
+	open $hl, "<", $file . ".custom"
+		or do {
+		open $hl, "<", $file or die "Can't open hosts file: $!";
+	};
 
 	my @names_exp = ( );
 	foreach( @names ) {
