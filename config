@@ -37,7 +37,7 @@ expect_debug	= 0
 
 
 # shell command
-shell		= bash
+shell		= bash --norc
 
 
 # command used for su:

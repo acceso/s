@@ -32,7 +32,7 @@ default_options
 		ssh_debug	=> 0,
 		ssh_debug_extra	=> 0,
 		expect_debug	=> 0,
-		shell		=> 'bash',
+		shell		=> 'bash --norc',
 		su_command	=> "su -l",
 		su_pass_mod	=> '',
 		su_pass_default	=> '',
@@ -435,7 +435,7 @@ foreach my $host ( get_ssh_hosts( $config->{hostlist}, @ARGV ) ) {
 
 	if( $config->{shell_init} ) {
 		$config->{shell_init} .= "\n" unless $config->{shell_init} =~ /\n$/m;
-		$expect->send( $config->{shell_init} );
+		$expect->send( "unset PS1; " . $config->{shell_init} );
 	}
 
 
