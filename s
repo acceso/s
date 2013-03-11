@@ -166,12 +166,21 @@ get_ssh_hosts
 
 		next unless $h_alias ~~ @names_exp;
 
+		my @extra = ( );
+		if( $h_entry[4] ) {
+			@extra = @h_entry[4 .. $#h_entry];
+		} elsif( $global_context[4] ) {
+			@extra = @global_context[4 .. $#global_context];
+		}
+
 		push @hostlist, {
 			alias		=> $h_alias,
 			user		=> $h_entry[0] || $global_context[0] || "",
 			hostname	=> ( $h_entry[1] || $global_context[1] || "" ) . 
 						$h_alias .
 						( $h_entry[2] || $global_context[2] || "" ),
+			mod_pass	=> $h_entry[3] || "",
+			extra		=> [ @extra ],
 		};
 
 	}

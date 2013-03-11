@@ -1,11 +1,14 @@
 
 #
-# ( GLOBAL | alias ) [ user [, start [, end ] ] ]
+# ( GLOBAL | alias ) [ user [, start [, end [, su_module [, extra ... ] ] ] ] ]
 #
 # The connection is done to: user @ start + alias + end
 #
-# It uses the alias definition but if empty, uses the GLOBAL one.
-# So at least one is needed.
+# If user is not root, "su_module" is required to get su password.
+# If "su_module" is not used, the "su_pass_mod" config directive is used.
+#
+# If the alias definition is empty, uses the GLOBAL one.
+#
 
 
 GLOBAL,root
