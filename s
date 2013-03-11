@@ -44,7 +44,8 @@ default_options
 		ps1		=> '\u@\h:\w\$ ',
 		tty_restore	=> "sane -brkint -imaxbel iutf8",
 		scripts_dir	=> "${Bin}/scripts",
-
+		scripts_begin	=> "",
+		scripts_end	=> "exit",
 	};
 
 }
@@ -459,9 +460,11 @@ foreach my $host ( get_ssh_hosts( $config->{hostlist}, @ARGV ) ) {
 			die "Can't find script " . $cmdopts{s} unless -r $scriptfile;
 		}
 
+		$expect->send( $config->{scripts_begin} . "\n" ) if $config->{scripts_begin};
+
 		file2expect $expect, $scriptfile;
 
-		$expect->send( "exit\n" );
+		$expect->send( $config->{scripts_end} . "\n" ) if $config->{scripts_end};
 
 	} else {
 		file2expect $expect, $config->{history_file}, " history -s ", 1 if $config->{history_file};

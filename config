@@ -85,3 +85,13 @@ scripts_dir	= ${Bin}/scripts
 
 
 
+# This gets executed before doing the script:
+scripts_begin	= hostname
+
+
+
+# This gets executed after doing the script:
+scripts_end	= exit
+
+
+
