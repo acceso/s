@@ -34,6 +34,8 @@ default_options
 		expect_debug	=> 0,
 		shell		=> 'bash',
 		su_command	=> "su -l",
+		su_pass_mod	=> '',
+		su_pass_default	=> '',
 		shell_init	=> '',
  		profile_file	=> "${Bin}/bash_profile",
  		profile_host	=> "${Bin}/profiles/%s",
@@ -260,13 +262,19 @@ ssh_launch_master
 
 
 
-# TODO:
 sub
-get_supass
+get_supass_mod
 {
-	my( $host ) = @_;
+	my( $config, $host ) = @_;
 
-	return "ejem";
+	return $config->{su_pass_default} || "" unless $config->{su_pass_mod};
+
+	my $modname = $config->{su_pass_mod};
+
+	eval "require " . $modname;
+
+	return $modname->get_supass( $config, $host );
+
 }
 
 
@@ -407,7 +415,7 @@ foreach my $host ( get_ssh_hosts( $config->{hostlist}, @ARGV ) ) {
 
 	if( $host->{user} ne "root" ) {
 		$expect->expect( 2,
-			[ qr/^Password: / => sub { shift->send( get_supass( $host ) . "\n" ); } ],
+			[ qr/^Password: / => sub { shift->send( get_supass_mod( $config, $host ) . "\n" ); } ],
 			) or do { warn "Expect timeout."; next; }
 	} else {
 		$expect->stty( qw(raw) );

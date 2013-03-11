@@ -44,6 +44,14 @@ shell		= bash
 su_command	= su -l
 
 
+# module to get su password:
+su_pass_mod    = Supass
+
+
+# default password for su when su_pass_class doesn't have it:
+su_pass_default = 
+
+
 # shell initialization commands to be executed before the profile:
 shell_init	= export HISTCONTROL='ignorespace'
 
