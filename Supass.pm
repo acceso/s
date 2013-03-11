@@ -1,6 +1,8 @@
 
 package Supass;
 
+use warnings;
+
 
 sub
 get_supass
@@ -9,5 +11,8 @@ get_supass
 
 	return "your_password";
 }
+
+
+1;
 
 

@@ -285,6 +285,8 @@ get_supass_mod
 
 	eval "require " . $modname;
 
+	print $@ if $@;
+
 	return $modname->get_supass( $config, $host );
 
 }
