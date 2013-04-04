@@ -61,7 +61,7 @@ read_config
 
 	my @runaway = ( );
 
-	open my $f, "< " . $file or return $h;
+	open my $f, "< ", $file or return $h;
 
 	while( my $l = <$f> ) {
 		chomp $l;
@@ -112,7 +112,9 @@ read_config
 		if( $val =~ /^["']?(false|0|no|off)?["']?$/ ) {
 			$finalval = '';
 		} else {
+			#print $val, "\n" if $val and $val =~ /[^\\]\$/;
 			$finalval = eval $val or die "Invalid value in config file: " . $@;
+			#print $finalval, "\n\n" if $val and $val =~ /[^\\]\$/;
 		}
 
 		$h->{$var} = $finalval;
@@ -135,8 +137,7 @@ get_ssh_hosts
 	my @names = @_;
 
 	my $hl;
-	open $hl, "<", $file . ".custom"
-		or do {
+	open $hl, "<", $file . ".custom" or do {
 		open $hl, "<", $file or die "Can't open hosts file: $!";
 	};
 
@@ -349,6 +350,7 @@ file2expect
 
 	close $f;
 
+	return;
 }
 
 
@@ -425,6 +427,7 @@ foreach my $host ( get_ssh_hosts( $config->{hostlist}, @ARGV ) ) {
 		$expect->slave->clone_winsize_from( \*STDIN );
 		kill WINCH => $expect->pid if $expect->pid;
 		$SIG{WINCH} = \&winch;
+		return;
 	};
 
 
