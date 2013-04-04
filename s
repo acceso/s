@@ -378,11 +378,15 @@ mkdir $config->{sockbase} or die "Can't create socket directory."
 
 foreach my $host ( get_ssh_hosts( $config->{hostlist}, @ARGV ) ) { 
 
+	my $interactive_session = 1;
+
 	if( $cmdopts{n} ) {
 		print $host->{alias} . " " . $host->{hostname} . "\n";
 		#print Dumper $host;
 		next;
 	}
+
+	$interactive_session = 0 if $cmdopts{s};
 
 	# Set xterm title:
 	print "\033]0;ssh: " . $host->{hostname} . "\007" if $config->{xtermtitle};
@@ -411,12 +415,14 @@ foreach my $host ( get_ssh_hosts( $config->{hostlist}, @ARGV ) ) {
 	my @ssh_cmd = ( );
 
 	if( $host->{user} eq "root" ) {
-		push @ssh_cmd, "stty -echo ; PS1='' " . $config->{shell};
+		# Non-interactive sessions don't have a tty:
+		push @ssh_cmd, ( $interactive_session ? "stty -echo ; " : "" ) . "PS1='' " . $config->{shell};
 	} else {
 		push @ssh_cmd, split( /\s+/, $config->{su_command} ), "-c", "PS1='' " . $config->{shell};
 	}
 
-	my( $pty, $pid ) = $ssh->open2pty( @ssh_cmd );
+
+	my( $pty, $pid ) = $ssh->open2pty( $interactive_session ? { } : { tty  => 0, }, @ssh_cmd );
 
 
 	my $expect = expect_init $config, $pty;
@@ -436,7 +442,7 @@ foreach my $host ( get_ssh_hosts( $config->{hostlist}, @ARGV ) ) {
 			[ qr/^Password: / => sub { shift->send( get_supass_mod( $config, $host ) . "\n" ); } ],
 			) or do { warn "Expect timeout."; next; }
 	} else {
-		$expect->stty( qw(raw) );
+		$expect->stty( qw(raw) ) if $interactive_session;
 	}
 
 	if( $config->{shell_init} ) {
