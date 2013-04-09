@@ -38,6 +38,7 @@ default_options
 		su_pass_default	=> '',
 		shell_init	=> '',
  		profile_file	=> "${Bin}/bash_profile",
+ 		profile_file_s	=> "${Bin}/bash_profile_noninteractive",
  		profile_host	=> "${Bin}/profiles/%s",
 		history_file	=> "${Bin}/bash_history",
  		history_host	=> "${Bin}/history/%s",
@@ -330,7 +331,7 @@ file2expect
 	my $quote = shift || 0;
 
 	unless( -r $file ) {
-		warn "Can't open profile file " . $file . ": " . $!;
+		#warn "Can't open profile file " . $file . ": " . $!;
 		return;
 	}
 
@@ -468,6 +469,8 @@ foreach my $host ( get_ssh_hosts( $config->{hostlist}, @ARGV ) ) {
 			$scriptfile = $config->{scripts_dir} . "/" . $cmdopts{s};
 			die "Can't find script " . $cmdopts{s} unless -r $scriptfile;
 		}
+
+		file2expect $expect, $config->{profile_file_s}, " " if $config->{profile_file_s};
 
 		$expect->send( $config->{scripts_begin} . "\n" ) if $config->{scripts_begin};
 

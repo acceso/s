@@ -60,6 +60,10 @@ shell_init	= export HISTCONTROL='ignorespace'
 profile_file	= ${Bin}/bash_profile
 
 
+# shell profile file for non interactive scripts::
+profile_file_s	= ${Bin}/bash_profile_noninteractive
+
+
 # profile per host:
 profile_host	= ${Bin}/profiles/%s
 
