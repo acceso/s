@@ -40,8 +40,10 @@ default_options
  		profile_file	=> "${Bin}/bash_profile",
  		profile_file_s	=> "${Bin}/bash_profile_noninteractive",
  		profile_host	=> "${Bin}/profiles/%s",
+ 		profile_host_regex => 0,
 		history_file	=> "${Bin}/bash_history",
  		history_host	=> "${Bin}/history/%s",
+ 		history_host_regex => 0,
 		ps1		=> '\u@\h:\w\$ ',
 		tty_restore	=> "sane -brkint -imaxbel iutf8",
 		scripts_dir	=> "${Bin}/scripts",
@@ -112,6 +114,8 @@ read_config
 
 		if( $val =~ /^["']?(false|0|no|off)?["']?$/ ) {
 			$finalval = '';
+		} elsif ( $val =~ /^["']?\/(.*)\/["']?/ ) {
+			$finalval = $1;
 		} else {
 			#print $val, "\n" if $val and $val =~ /[^\\]\$/;
 			$finalval = eval $val or die "Invalid value in config file: " . $@;
@@ -455,10 +459,19 @@ foreach my $host ( get_ssh_hosts( $config->{hostlist}, @ARGV ) ) {
 	file2expect $expect, $config->{profile_file}, " " if $config->{profile_file};
 
 	if( $config->{profile_host} ) {
-		$config->{profile_host} = sprintf $config->{profile_host}, $host->{alias};
-		file2expect $expect, $config->{profile_host}, " " if -r $config->{profile_host};
-	}
+		my $profile_file = sprintf $config->{profile_host}, $host->{alias};
+		file2expect $expect, $profile_file, " " if -r $profile_file;
 
+		if( $config->{profile_host_regex} ) {
+			# Filters the files that match the expression:
+			foreach( grep qr/($config->{profile_host_regex})/, glob sprintf $config->{profile_host}, '*' ) {
+				# Avoid running the file that we ran previously:
+				next if $_ eq $profile_file;
+
+				file2expect $expect, $_, " " if -r $_;
+			}
+		}
+	}
 
 	if( $cmdopts{s} ) {
 		my $scriptfile;
@@ -481,8 +494,19 @@ foreach my $host ( get_ssh_hosts( $config->{hostlist}, @ARGV ) ) {
 	} else {
 		file2expect $expect, $config->{history_file}, " history -s ", 1 if $config->{history_file};
 		if( $config->{history_host} ) {
-			$config->{history_host} = sprintf $config->{history_host}, $host->{alias};
-			file2expect $expect, $config->{history_host}, " history -s ", 1 if -r $config->{history_host};
+			my $history_file = sprintf $config->{history_host}, $host->{alias};
+			file2expect $expect, $history_file, " history -s ", 1 if -r $history_file;
+
+			if( $config->{history_host_regexp} ) {
+				# Filters the files that match the expression:
+				foreach( grep qr/($config->{history_host_regexp})/, glob sprintf $config->{history_host}, '*' ) {
+					# Avoid running the file that we ran previously:
+					next if $_ eq $history_file;
+
+					file2expect $expect, $_, " history -s ", 1 if -r $_;
+				}
+			}
+
 		}
 	}
 

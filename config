@@ -65,7 +65,11 @@ profile_file_s	= ${Bin}/bash_profile_noninteractive
 
 
 # profile per host:
-profile_host	= ${Bin}/profiles/%s
+profile_host	= ${Bin}/profiles/%s.rc
+
+
+# run matching profile files from "profile_host" (%s expands to '*')
+profile_host_regexp = /^\w+$/
 
 
 # history file:
@@ -74,6 +78,10 @@ history_file	= ${Bin}/bash_history
 
 # history per host:
 history_host	= ${Bin}/profiles/%s.hist
+
+
+# also add matching history files from "history_host" (%s expands to '*')
+history_host_regexp = /^\w+$/
 
 
 # ps1
