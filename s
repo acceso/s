@@ -186,7 +186,7 @@ get_ssh_hosts
 			hostname	=> ( $h_entry[1] || $global_context[1] || "" ) . 
 						$h_alias .
 						( $h_entry[2] || $global_context[2] || "" ),
-			mod_pass	=> $h_entry[3] || "",
+			mod_pass	=> $h_entry[3] || $global_context[3] || "",
 			extra		=> [ @extra ],
 		};
 
@@ -286,9 +286,18 @@ get_supass_mod
 {
 	my( $config, $host ) = @_;
 
-	return $config->{su_pass_default} || "" unless $config->{su_pass_mod};
+	my $modname;
 
-	my $modname = $config->{su_pass_mod};
+	if( $host->{mod_pass} ) {
+		# Use specific module for host if available:
+		$modname = $host->{mod_pass};
+	} elsif( $config->{su_pass_mod} ) {
+		# Then use module from config:
+		$modname = $config->{su_pass_mod};
+	} else {
+		# Otherwise use the default password or an empty one:
+		return $config->{su_pass_default} || "";
+	}
 
 	eval "require " . $modname;
 
