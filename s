@@ -203,7 +203,7 @@ get_ssh_hosts
 sub
 get_ssh_opts
 {
-	my( $config, $host ) = @_;
+	my( $config, $host, $interactive_session ) = @_;
 
 	my %opts = (
 		user			=> $host->{user},
@@ -213,7 +213,7 @@ get_ssh_opts
 			# Send keepalives
 			-o	=> "ServerAliveInterval=60",
 			-o	=> "ServerAliveCountMax=6",
-			# TODO: doesn't work with master/slave ssh, see function process_escapes() in:
+			# Note some commands don't work with master/slave ssh, see function process_escapes() in:
 			# http://www.openbsd.org/cgi-bin/cvsweb/src/usr.bin/ssh/clientloop.c?rev=HEAD;content-type=text%2Fplain
 			#-e => '~',
 		],
@@ -221,6 +221,10 @@ get_ssh_opts
 		async			=> 1,
 	);
 	$opts{external_master} = 1 if -r $opts{ctl_path};
+
+	# This is recommended as binary data could trigger the openssh escape char.
+	# Note that if "-e" is specified twice, the last one prevails.
+	push $opts{default_ssh_opts}, -e => 'none' unless $interactive_session;
 
 	if( $config->{ssh_verbose} ) {
 		if( $config->{ssh_verbose} =~ /\d+/ ) {
@@ -406,7 +410,7 @@ foreach my $host ( get_ssh_hosts( $config->{hostlist}, @ARGV ) ) {
 	print "\033]0;ssh: " . $host->{hostname} . "\007" if $config->{xtermtitle};
 
 
-	my $opts = get_ssh_opts $config, $host;
+	my $opts = get_ssh_opts $config, $host, $interactive_session;
 
 
 	$Net::OpenSSH::debug |= 16 if $config->{ssh_debug};
