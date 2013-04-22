@@ -255,8 +255,9 @@ ssh_launch_master
 
 	$opts->{master_opts} = [
 		"-A",	# Allow agent forwarding (needed in both master and slave).
-		"-f",	# -f: forks the client, note Net::OpenSSH doens't like this very much.
-		"-n",	# -n: prevents reading from stdin.
+		"-f",	# orks the client.
+		"-n",	# Prevents reading from stdin.
+		"-T",	# The master doesn't need a tty.
 		-c 	=> "blowfish-cbc", # Speed things up.
 		-o 	=> "ControlPersist=1800", # Disconnect idle sessions.
 	];
