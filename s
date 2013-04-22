@@ -372,7 +372,7 @@ file2expect
 		next if /^\s*#/;
 		my $cmd;
 		if( $quote ) {
-			$cmd = $prefix. qq("$_"\n);
+			$cmd = $prefix. qq("$_");
 		} else {
 			$cmd = $prefix . $_;
 		}
@@ -513,11 +513,11 @@ foreach my $host ( get_ssh_hosts( $config->{hostlist}, @ARGV ) ) {
 
 		file2expect $expect, $config->{profile_file_s}, " " if $config->{profile_file_s};
 
-		ssh_exec( $expect, $config->{scripts_begin} . "\n" ) if $config->{scripts_begin};
+		ssh_exec( $expect, $config->{scripts_begin} ) if $config->{scripts_begin};
 
 		file2expect $expect, $scriptfile;
 
-		ssh_exec( $expect, $config->{scripts_end} . "\n" ) if $config->{scripts_end};
+		ssh_exec( $expect, $config->{scripts_end} ) if $config->{scripts_end};
 
 	} else {
 		file2expect $expect, $config->{history_file}, " history -s ", 1 if $config->{history_file};
@@ -537,7 +537,7 @@ foreach my $host ( get_ssh_hosts( $config->{hostlist}, @ARGV ) ) {
 
 		}
 
-		ssh_exec( $expect, " export PS1='" . $config->{ps1} . "'; stty " . $config->{tty_restore} . "\n" );
+		ssh_exec( $expect, " export PS1='" . $config->{ps1} . "'; stty " . $config->{tty_restore} );
 
 	}
 
