@@ -509,6 +509,8 @@ foreach my $host ( get_ssh_hosts( $config->{hostlist}, @ARGV ) ) {
 			die "Can't find script " . $cmdopts{s} unless -r $scriptfile;
 		}
 
+		ssh_exec( $expect, "unset PS2" );
+
 		file2expect $expect, $config->{profile_file_s}, " " if $config->{profile_file_s};
 
 		ssh_exec( $expect, $config->{scripts_begin} . "\n" ) if $config->{scripts_begin};
