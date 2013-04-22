@@ -340,6 +340,17 @@ expect_init
 
 
 sub
+ssh_exec
+{
+	my $h = shift;
+	my $cmd = shift;
+
+	print $h->send( $cmd . "\n" );
+}
+
+
+
+sub
 file2expect
 {
 	my $expect = shift;
@@ -359,11 +370,13 @@ file2expect
 		chomp;
 		next unless $_;
 		next if /^\s*#/;
+		my $cmd;
 		if( $quote ) {
-			$expect->send( qq(${prefix}"$_"\n) );
+			$cmd = $prefix. qq("$_"\n);
 		} else {
-			$expect->send( "${prefix}$_\n" );
+			$cmd = $prefix . $_;
 		}
+		ssh_exec $expect, $cmd;
 	}
 
 	close $f;
@@ -458,14 +471,14 @@ foreach my $host ( get_ssh_hosts( $config->{hostlist}, @ARGV ) ) {
 	if( $host->{user} ne "root" ) {
 		$expect->expect( 2,
 			[ qr/^Password: / => sub { shift->send( get_supass_mod( $config, $host ) . "\n" ); } ],
-			) or do { warn "Expect timeout."; next; }
+			) or do { warn "Expect timeout."; next; };
 	} else {
 		$expect->stty( qw(raw) ) if $interactive_session;
 	}
 
 	if( $config->{shell_init} ) {
 		$config->{shell_init} .= "\n" unless $config->{shell_init} =~ /\n$/m;
-		$expect->send( "unset PS1; " . $config->{shell_init} );
+		ssh_exec( $expect, "unset PS1; " . $config->{shell_init} );
 	}
 
 
@@ -498,11 +511,11 @@ foreach my $host ( get_ssh_hosts( $config->{hostlist}, @ARGV ) ) {
 
 		file2expect $expect, $config->{profile_file_s}, " " if $config->{profile_file_s};
 
-		$expect->send( $config->{scripts_begin} . "\n" ) if $config->{scripts_begin};
+		ssh_exec( $expect, $config->{scripts_begin} . "\n" ) if $config->{scripts_begin};
 
 		file2expect $expect, $scriptfile;
 
-		$expect->send( $config->{scripts_end} . "\n" ) if $config->{scripts_end};
+		ssh_exec( $expect, $config->{scripts_end} . "\n" ) if $config->{scripts_end};
 
 	} else {
 		file2expect $expect, $config->{history_file}, " history -s ", 1 if $config->{history_file};
@@ -521,10 +534,11 @@ foreach my $host ( get_ssh_hosts( $config->{hostlist}, @ARGV ) ) {
 			}
 
 		}
+
+		ssh_exec( $expect, " export PS1='" . $config->{ps1} . "'; stty " . $config->{tty_restore} . "\n" );
+
 	}
 
-
-	$expect->send( " export PS1='" . $config->{ps1} . "'; stty " . $config->{tty_restore} . "\n" );
 
 	$expect->interact();
 
