@@ -278,7 +278,7 @@ ssh_launch_master
 
 	delete $opts->{master_opts};
 
-	$ssh->wait_for_master( 1 );
+	$ssh->wait_for_master( );
 
 	return;
 
