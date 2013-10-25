@@ -11,6 +11,7 @@ use v5.10;
 use Data::Dumper;
 use FindBin qw( $Bin );
 use Getopt::Std;
+use List::MoreUtils 'any';
 
 BEGIN { push( @INC, "${Bin}", "${Bin}/lib" ); };
 
@@ -151,7 +152,7 @@ get_ssh_hosts
 		if( $_ =~ /^\/(.*)\/$/ ) {
 			push @names_exp, qr/${1}/;
 		} else {
-			push @names_exp, $_;
+			push @names_exp, qr/^${_}$/;
 		}
 	}
 
@@ -171,7 +172,7 @@ get_ssh_hosts
 			next;
 		}
 
-		next unless $h_alias ~~ @names_exp;
+		next unless any { $h_alias =~ qr/${_}/ } @names_exp;
 
 		my @extra = ( );
 		if( $h_entry[4] ) {
