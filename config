@@ -16,6 +16,14 @@ xtermtitle	= true
 keysdir		= ${Bin}/keys
 
 
+# Forward agent information:
+ssh_agent_forwarding = false
+
+
+# Use a different cipher for the connection:
+#ssh_cipher	= 'blowfish-cbc'
+
+
 # SSH verbose for the master process:
 ssh_verbose_master = 0
 

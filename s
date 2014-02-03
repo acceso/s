@@ -25,31 +25,34 @@ default_options
 {
 
 	return {
-		hostlist	=> "${Bin}/hostlist",
-		sockbase	=> "$ENV{HOME}/.libnet-openssh-perl",
-		xtermtitle	=> 0,
-		keysdir		=> "${Bin}/keys",
-		ssh_verbose	=> 0,
-		ssh_debug	=> 0,
-		ssh_debug_extra	=> 0,
-		expect_debug	=> 0,
-		shell		=> 'bash --norc',
-		su_command	=> "su -l",
-		su_pass_mod	=> '',
-		su_pass_default	=> '',
-		shell_init	=> '',
- 		profile_file	=> "${Bin}/bash_profile",
- 		profile_file_s	=> "${Bin}/bash_profile_noninteractive",
- 		profile_host	=> "${Bin}/profiles/%s",
- 		profile_host_regex => 0,
-		history_file	=> "${Bin}/bash_history",
- 		history_host	=> "${Bin}/history/%s",
- 		history_host_regex => 0,
-		ps1		=> '\u@\h:\w\$ ',
-		tty_restore	=> "sane -brkint -imaxbel iutf8",
-		scripts_dir	=> "${Bin}/scripts",
-		scripts_begin	=> "",
-		scripts_end	=> "exit",
+		hostlist		=> "${Bin}/hostlist",
+		sockbase		=> "$ENV{HOME}/.libnet-openssh-perl",
+		xtermtitle		=> 0,
+		keysdir			=> "${Bin}/keys",
+		ssh_agent_forwarding	=> 0,
+		ssh_cipher		=> undef,
+		ssh_verbose_master	=> 0,
+		ssh_verbose		=> 0,
+		ssh_debug		=> 0,
+		ssh_debug_extra		=> 0,
+		expect_debug		=> 0,
+		shell			=> 'bash --norc',
+		su_command		=> "su -l",
+		su_pass_mod		=> '',
+		su_pass_default		=> '',
+		shell_init		=> '',
+		profile_file		=> "${Bin}/bash_profile",
+		profile_file_s		=> "${Bin}/bash_profile_noninteractive",
+		profile_host		=> "${Bin}/profiles/%s",
+		profile_host_regex	=> 0,
+		history_file		=> "${Bin}/bash_history",
+		history_host		=> "${Bin}/history/%s",
+		history_host_regex	=> 0,
+		ps1			=> '\u@\h:\w\$ ',
+		tty_restore		=> "sane -brkint -imaxbel iutf8",
+		scripts_dir		=> "${Bin}/scripts",
+		scripts_begin		=> "",
+		scripts_end		=> "exit",
 	};
 
 }
@@ -209,12 +212,11 @@ get_ssh_opts
 	my %opts = (
 		user			=> $host->{user},
 		default_ssh_opts	=> [
-			# Allow agent forwarding
-			"-A",
 			# Send keepalives
 			-o	=> "ServerAliveInterval=60",
 			-o	=> "ServerAliveCountMax=6",
-			# Note some commands don't work with master/slave ssh, see function process_escapes() in:
+			# Note some commands don't work with master/slave ssh,
+			# see function process_escapes() in:
 			# http://www.openbsd.org/cgi-bin/cvsweb/src/usr.bin/ssh/clientloop.c?rev=HEAD;content-type=text%2Fplain
 			#-e => '~',
 		],
@@ -226,6 +228,8 @@ get_ssh_opts
 	# This is recommended as binary data could trigger the openssh escape char.
 	# Note that if "-e" is specified twice, the last one prevails.
 	push $opts{default_ssh_opts}, -e => 'none' unless $interactive_session;
+
+	push $opts{default_ssh_opts}, "-A" if $config->{ssh_agent_forwarding};
 
 	if( $config->{ssh_verbose} ) {
 		if( $config->{ssh_verbose} =~ /\d+/ ) {
@@ -255,13 +259,15 @@ ssh_launch_master
 	my( $config, $host, $opts ) = @_;
 
 	$opts->{master_opts} = [
-		"-A",	# Allow agent forwarding (needed in both master and slave).
-		"-f",	# orks the client.
+		"-f",	# forks the client.
 		"-n",	# Prevents reading from stdin.
 		"-T",	# The master doesn't need a tty.
-		-c 	=> "blowfish-cbc", # Speed things up.
 		-o 	=> "ControlPersist=1800", # Disconnect idle sessions.
 	];
+
+	push $opts->{master_opts}, "-A" if $config->{ssh_agent_forwarding};
+
+	push $opts->{master_opts}, "-c" => $config->{ssh_cipher} if $config->{ssh_cipher};
 
 	if( $config->{ssh_verbose_master} ) {
 		if( $config->{ssh_verbose_master} =~ /\d+/ ) {
@@ -449,6 +455,8 @@ foreach my $host ( get_ssh_hosts( $config->{hostlist}, @ARGV ) ) {
 
 	if( $host->{user} eq "root" ) {
 		# Non-interactive sessions don't have a tty:
+		# TODO: use this linea, set tty => 1 below, and fix it!
+		#push @ssh_cmd, "stty -echo ; PS1='' " . $config->{shell};
 		push @ssh_cmd, ( $interactive_session ? "stty -echo ; " : "" ) . "PS1='' " . $config->{shell};
 	} else {
 		push @ssh_cmd, split( /\s+/, $config->{su_command} ), "-c", "PS1='' " . $config->{shell};
@@ -477,6 +485,8 @@ foreach my $host ( get_ssh_hosts( $config->{hostlist}, @ARGV ) ) {
 	} else {
 		$expect->stty( qw(raw) ) if $interactive_session;
 	}
+
+	#print get_supass_mod( $config, $host ) . "\n\n";
 
 	if( $config->{shell_init} ) {
 		$config->{shell_init} .= "\n" unless $config->{shell_init} =~ /\n$/m;
