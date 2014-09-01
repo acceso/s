@@ -227,15 +227,15 @@ get_ssh_opts
 
 	# This is recommended as binary data could trigger the openssh escape char.
 	# Note that if "-e" is specified twice, the last one prevails.
-	push $opts{default_ssh_opts}, -e => 'none' unless $interactive_session;
+	push @{ $opts{default_ssh_opts} }, -e => 'none' unless $interactive_session;
 
-	push $opts{default_ssh_opts}, "-A" if $config->{ssh_agent_forwarding};
+	push @{ $opts{default_ssh_opts} }, "-A" if $config->{ssh_agent_forwarding};
 
 	if( $config->{ssh_verbose} ) {
 		if( $config->{ssh_verbose} =~ /\d+/ ) {
-			push $opts{default_ssh_opts}, "-" . "v" x $config->{ssh_verbose};
+			push @{ $opts{default_ssh_opts} }, "-" . "v" x $config->{ssh_verbose};
 		} else {
-			push $opts{default_ssh_opts}, "-vvv";
+			push @{ $opts{default_ssh_opts} }, "-vvv";
 		}
 	}
 
@@ -265,15 +265,15 @@ ssh_launch_master
 		-o 	=> "ControlPersist=1800", # Disconnect idle sessions.
 	];
 
-	push $opts->{master_opts}, "-A" if $config->{ssh_agent_forwarding};
+	push @{ $opts->{master_opts} }, "-A" if $config->{ssh_agent_forwarding};
 
-	push $opts->{master_opts}, "-c" => $config->{ssh_cipher} if $config->{ssh_cipher};
+	push @{ $opts->{master_opts} }, "-c" => $config->{ssh_cipher} if $config->{ssh_cipher};
 
 	if( $config->{ssh_verbose_master} ) {
 		if( $config->{ssh_verbose_master} =~ /\d+/ ) {
-			push $opts->{master_opts}, "-" . "v" x $config->{ssh_verbose_master};
+			push @{ $opts->{master_opts} }, "-" . "v" x $config->{ssh_verbose_master};
 		} else {
-			push $opts->{master_opts}, "-vvv";
+			push @{ $opts->{master_opts} }, "-vvv";
 		}
 	}
 

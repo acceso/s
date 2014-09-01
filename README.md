@@ -26,6 +26,7 @@ Perl modules you'll need:
 
 - Net::OpenSSH
 - Expect (if using su)
+- List::MoreUtils
 - Net::Server::Multiplex
 - IO::Stty
 
