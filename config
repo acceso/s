@@ -16,6 +16,10 @@ xtermtitle	= true
 keysdir		= ${Bin}/keys
 
 
+# Connect timeout:
+#ssh_connect_timeout	= 5
+
+
 # Forward agent information:
 ssh_agent_forwarding = false
 

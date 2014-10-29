@@ -29,6 +29,7 @@ default_options
 		sockbase		=> "$ENV{HOME}/.libnet-openssh-perl",
 		xtermtitle		=> 0,
 		keysdir			=> "${Bin}/keys",
+		ssh_connect_timeout	=> undef,
 		ssh_agent_forwarding	=> 0,
 		ssh_cipher		=> undef,
 		ssh_verbose_master	=> 0,
@@ -264,6 +265,8 @@ ssh_launch_master
 		"-T",	# The master doesn't need a tty.
 		-o 	=> "ControlPersist=1800", # Disconnect idle sessions.
 	];
+
+	push @{ $opts->{master_opts} }, "-o" => "ConnectTimeout=" . $config->{ssh_connect_timeout} if $config->{ssh_connect_timeout};
 
 	push @{ $opts->{master_opts} }, "-A" if $config->{ssh_agent_forwarding};
 
